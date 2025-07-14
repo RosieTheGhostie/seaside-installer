@@ -183,6 +183,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b05b61dc5112cbb17e4b6cd61790d9845d13888356391624cbe7e41efeac1e75"
 
 [[package]]
+name = "console"
+version = "0.15.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "054ccb5b10f9f2cbf51eb355ca1d05c2d279ce1804688d0db74b4733a5aeafd8"
+dependencies = [
+ "encode_unicode",
+ "libc",
+ "once_cell",
+ "unicode-width",
+ "windows-sys 0.59.0",
+]
+
+[[package]]
 name = "core-foundation"
 version = "0.9.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -229,6 +242,12 @@ dependencies = [
  "quote",
  "syn",
 ]
+
+[[package]]
+name = "encode_unicode"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "34aa73646ffb006b8f5147f3dc182bd4bcb190227ce861fc4a4844bf8e3cb2c0"
 
 [[package]]
 name = "encoding_rs"
@@ -289,6 +308,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e13624c2627564efccf4934284bdd98cbaa14e79b0b5a141218e507b3a823456"
 dependencies = [
  "percent-encoding",
+]
+
+[[package]]
+name = "function-wrapper"
+version = "0.1.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "22bcdabb99659998ae919ca0d95ad9acbb24c0a4610ab0aa5d0c8836af10e5db"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
@@ -686,6 +716,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "lazy_static"
+version = "1.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
+
+[[package]]
 name = "libc"
 version = "0.2.174"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -730,6 +766,36 @@ name = "mime"
 version = "0.3.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6877bb514081ee2a7ff5ef9de3281f14a4dd4bceac4c09388074a6b5df8a139a"
+
+[[package]]
+name = "minimal-logging"
+version = "0.5.0"
+source = "git+https://github.com/RosieTheGhostie/minimal-logging.git#1756522c0026275a24f4b05a43d434644e418317"
+dependencies = [
+ "minimal-logging-attributes",
+ "minimal-logging-macros",
+]
+
+[[package]]
+name = "minimal-logging-attributes"
+version = "0.1.0"
+source = "git+https://github.com/RosieTheGhostie/minimal-logging.git#1756522c0026275a24f4b05a43d434644e418317"
+dependencies = [
+ "function-wrapper",
+ "minimal-logging-macros",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "minimal-logging-macros"
+version = "0.5.0"
+source = "git+https://github.com/RosieTheGhostie/minimal-logging.git#1756522c0026275a24f4b05a43d434644e418317"
+dependencies = [
+ "console",
+ "lazy_static",
+]
 
 [[package]]
 name = "miniz_oxide"
@@ -1071,10 +1137,11 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "directories",
- "log",
+ "minimal-logging",
  "regex",
  "reqwest",
  "semver",
+ "windows-registry",
 ]
 
 [[package]]
@@ -1416,6 +1483,12 @@ name = "unicode-ident"
 version = "1.0.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5a5f39404a5da50712a4c1eecf25e90dd62b613502b7e925fd4e4d19b5c96512"
+
+[[package]]
+name = "unicode-width"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4a1a07cc7db3810833284e8d372ccdc6da29741639ecc70c9ec107df0fa6154c"
 
 [[package]]
 name = "untrusted"

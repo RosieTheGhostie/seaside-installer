@@ -1,3 +1,4 @@
+use crate::logging::LogLevel;
 use clap::{Args, Parser, Subcommand};
 use semver::Version;
 
@@ -7,9 +8,9 @@ pub struct CmdArgs {
     #[command(subcommand)]
     pub command: Command,
 
-    /// Log more information to the terminal.
-    #[arg(short, long, default_value_t = false)]
-    pub verbose: bool,
+    /// Set the log level.
+    #[arg(long)]
+    pub log: Option<LogLevel>,
 }
 
 #[derive(Clone, Debug, Subcommand)]
@@ -28,6 +29,17 @@ pub struct InstallArgs {
     /// Ask before replacing any existing files.
     #[arg(short, long, default_value_t = true)]
     pub ask: bool,
+
+    #[cfg_attr(target_os = "windows", doc = r"Use the GNU toolchain instead of MSVC.")]
+    #[cfg_attr(target_os = "windows", arg(long, default_value_t = false))]
+    pub use_gnu: bool,
+
+    #[cfg_attr(
+        target_os = "windows",
+        doc = r"Try to add seaside to the PATH environment variable."
+    )]
+    #[cfg_attr(target_os = "windows", arg(long, default_value_t = true))]
+    pub modify_path: bool,
 }
 
 #[derive(Args, Clone, Debug)]
