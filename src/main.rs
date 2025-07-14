@@ -16,9 +16,7 @@ use windows::{install, uninstall};
 
 fn main() -> ExitCode {
     let cmd_args = CmdArgs::parse();
-    if let Some(log_level) = cmd_args.log {
-        unsafe { logging::LOG_LEVEL = log_level };
-    }
+    unsafe { logging::LOG_LEVEL = cmd_args.log_level };
     let result = match cmd_args.command {
         Command::Install(args) => install(args),
         Command::Uninstall(args) => uninstall(args),

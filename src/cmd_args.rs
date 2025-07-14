@@ -1,7 +1,8 @@
 use crate::logging::LogLevel;
-use clap::{Args, Parser, Subcommand};
+use clap::{Args, Parser, Subcommand, ValueEnum};
 use semver::Version;
 
+/// A simple installer, updater, and uninstaller for seaside.
 #[derive(Clone, Debug, Parser)]
 #[command(about, long_about = None)]
 pub struct CmdArgs {
@@ -9,8 +10,8 @@ pub struct CmdArgs {
     pub command: Command,
 
     /// Set the log level.
-    #[arg(long)]
-    pub log: Option<LogLevel>,
+    #[arg(long = "log", value_enum, default_value_t = LogLevel::Info)]
+    pub log_level: LogLevel,
 }
 
 #[derive(Clone, Debug, Subcommand)]
@@ -26,20 +27,20 @@ pub struct InstallArgs {
     /// The version of seaside to install.
     pub version: Version,
 
-    /// Ask before replacing any existing files.
-    #[arg(short, long, default_value_t = true)]
-    pub ask: bool,
+    /// Skips asking before replacing files.
+    #[arg(short, long)]
+    pub yes: bool,
 
-    #[cfg_attr(target_os = "windows", doc = r"Use the GNU toolchain instead of MSVC.")]
-    #[cfg_attr(target_os = "windows", arg(long, default_value_t = false))]
-    pub use_gnu: bool,
+    #[cfg_attr(target_os = "windows", doc = "The toolchain to use.")]
+    #[cfg_attr(target_os = "windows", arg(long, value_enum, default_value_t = Toolchain::Msvc))]
+    pub toolchain: Toolchain,
 
     #[cfg_attr(
         target_os = "windows",
-        doc = r"Try to add seaside to the PATH environment variable."
+        doc = "Treat this installation as an update.\n\nThis skips steps that are only useful on a fresh install."
     )]
-    #[cfg_attr(target_os = "windows", arg(long, default_value_t = true))]
-    pub modify_path: bool,
+    #[cfg_attr(target_os = "windows", arg(short, long))]
+    pub update: bool,
 }
 
 #[derive(Args, Clone, Debug)]
@@ -47,4 +48,11 @@ pub struct UninstallArgs {
     /// Doesn't install the config file.
     #[arg(long, default_value_t = false)]
     pub keep_config: bool,
+}
+
+#[cfg(target_os = "windows")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, ValueEnum)]
+pub enum Toolchain {
+    Msvc,
+    Gnu,
 }

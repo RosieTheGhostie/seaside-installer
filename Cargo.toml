@@ -1,7 +1,11 @@
 [package]
 name = "seaside-installer"
 version = "0.1.0"
+authors = ["RosieTheGhostie <rosetheghost.dev@gmail.com>"]
 edition = "2024"
+readme = "README.md"
+repository = "https://github.com/RosieTheGhostie/seaside-installer"
+license = "MIT"
 
 [dependencies]
 clap = { version = "4.5.41", features = ["derive"] }
