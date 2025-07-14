@@ -69,11 +69,11 @@ where
     P: AsRef<Path>,
 {
     let mut buffer = Vec::new();
-    let replace_pattern = format!("$1{version}$2");
+    let replace_pattern = format!(r#"version = "{version}"$COMMENT"#);
 
     {
         let version_regex =
-            Regex::new(r#"(^[ \t]*version[ \t]*=[ \t]*").*("[ \t]*(?:#.*)?$)"#).unwrap();
+            Regex::new(r#"^[ \t]*version[ \t]*=[ \t]*".*"(?<COMMENT>[ \t]*(?:#.*)?)$"#).unwrap();
         trace!("opening config file...");
         let file = std::fs::File::open(&path)?;
         trace!("opened config file");

@@ -1,5 +1,5 @@
 use semver::Version;
-use std::{fmt::Display, path::PathBuf};
+use std::{fmt::Display, io::Write, path::PathBuf};
 
 pub const GITHUB_REPO: &str = "https://github.com/RosieTheGhostie/seaside";
 pub const CONFIG_NAME: &str = "Seaside.toml";
@@ -10,6 +10,7 @@ where
 {
     loop {
         print!("{message} (y/n) > ");
+        std::io::stdout().flush()?;
         let mut temp = String::new();
         std::io::stdin().read_line(&mut temp)?;
         temp.make_ascii_lowercase();
