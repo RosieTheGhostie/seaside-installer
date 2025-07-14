@@ -8,7 +8,7 @@ pub struct CmdArgs {
     pub command: Command,
 
     /// Log more information to the terminal.
-    #[arg(long, default_value_t = false)]
+    #[arg(short, long, default_value_t = false)]
     pub verbose: bool,
 }
 
@@ -23,7 +23,6 @@ pub enum Command {
 #[derive(Args, Clone, Debug)]
 pub struct InstallArgs {
     /// The version of seaside to install.
-    #[arg(short, long)]
     pub version: Version,
 
     /// Ask before replacing any existing files.

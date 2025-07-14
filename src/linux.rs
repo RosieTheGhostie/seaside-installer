@@ -1,12 +1,10 @@
 use crate::{
     cmd_args::{InstallArgs, UninstallArgs},
-    common::{CONFIG_NAME, ask, generate_release_asset_url, get_config_dir, get_config_path},
+    common::*,
 };
 use log::{info, trace};
-use regex::Regex;
 use reqwest::blocking::Client;
-use semver::Version;
-use std::{borrow::Cow, io::BufRead, path::Path};
+use std::path::Path;
 
 const BINARY_RELEASE_NAME: &str = "x86_64-unknown-linux-gnu-seaside";
 const BINARY_PATH: &str = "/usr/local/bin/seaside";
@@ -61,47 +59,6 @@ where
     std::fs::write(path, bytes)?;
     trace!("config downloaded");
     info!("successfully installed config");
-    Ok(())
-}
-
-fn update_config_version<P>(path: P, version: &Version) -> std::io::Result<()>
-where
-    P: AsRef<Path>,
-{
-    let mut buffer = Vec::new();
-    let replace_pattern = format!(r#"version = "{version}"$COMMENT"#);
-
-    {
-        let version_regex =
-            Regex::new(r#"^[ \t]*version[ \t]*=[ \t]*".*"(?<COMMENT>[ \t]*(?:#.*)?)$"#).unwrap();
-        trace!("opening config file...");
-        let file = std::fs::File::open(&path)?;
-        trace!("opened config file");
-        let mut lines_iter = std::io::BufReader::new(file).lines().map_while(Result::ok);
-
-        trace!("finding and replacing version...");
-        for line in lines_iter.by_ref() {
-            let replaced = version_regex.replace(&line, &replace_pattern);
-            buffer.extend(replaced.bytes());
-            buffer.push(b'\n');
-            if matches!(replaced, Cow::Owned(_)) {
-                trace!("version replaced");
-                break;
-            }
-        }
-
-        trace!("writing remainder of file to buffer...");
-        for line in lines_iter {
-            buffer.extend(line.bytes());
-            buffer.push(b'\n');
-        }
-        trace!("entire file written to buffer");
-    }
-
-    trace!("writing buffer back to file...");
-    std::fs::write(path, buffer)?;
-    trace!("buffer written to file");
-    info!("successfully updated config version");
     Ok(())
 }
 
