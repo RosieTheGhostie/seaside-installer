@@ -1,0 +1,12 @@
+[package]
+name = "seaside-installer"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+clap = { version = "4.5.41", features = ["derive"] }
+directories = "6.0.0"
+log = "0.4.27"
+regex = "1.11.1"
+reqwest = { version = "0.12.22", features = ["blocking"] }
+semver = "1.0.26"
