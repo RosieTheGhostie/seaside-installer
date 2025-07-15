@@ -1,5 +1,11 @@
 use super::{BINARY_PATH, BINARY_RELEASE_NAME};
-use crate::{cmd_args::InstallArgs, common::*, debug, info};
+use crate::{
+    cmd_args::InstallArgs,
+    common::{
+        ask, generate_release_asset_url, get_config_path, install_config, update_config_version,
+    },
+    debug, info, warn,
+};
 use reqwest::blocking::Client;
 
 pub fn install(args: InstallArgs) -> std::io::Result<()> {

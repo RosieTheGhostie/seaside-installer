@@ -1,5 +1,9 @@
 use super::BINARY_PATH;
-use crate::{cmd_args::UninstallArgs, common::*, debug, info};
+use crate::{
+    cmd_args::UninstallArgs,
+    common::{remove_dir_all, uninstall_config},
+    info,
+};
 
 pub fn uninstall(args: UninstallArgs) -> std::io::Result<()> {
     info!("uninstalling seaside...");

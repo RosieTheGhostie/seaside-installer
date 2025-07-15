@@ -4,7 +4,10 @@ use super::{
 };
 use crate::{
     cmd_args::{InstallArgs, Toolchain},
-    common::*,
+    common::{
+        ask, generate_release_asset_url, get_config_path, install_config, try_create_parent,
+        update_config_version,
+    },
     debug, info, warn,
 };
 use reqwest::blocking::Client;
@@ -56,11 +59,7 @@ fn install_binary(args: &InstallArgs, client: &Client) -> std::io::Result<()> {
         .map_err(std::io::Error::other)?
         .bytes()
         .map_err(std::io::Error::other)?;
-    match std::fs::create_dir(SEASIDE_PROGRAM_DATA) {
-        Ok(()) => {}
-        Err(err) if err.kind() == std::io::ErrorKind::AlreadyExists => {}
-        Err(err) => return Err(err),
-    }
+    try_create_parent(BINARY_PATH)?;
     std::fs::write(BINARY_PATH, bytes)?;
     debug!("binary downloaded");
 
