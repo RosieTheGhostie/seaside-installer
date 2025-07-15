@@ -1,7 +1,6 @@
 use super::CONFIG_NAME;
 use crate::{cmd_args::InstallArgs, debug, info};
 use regex::Regex;
-use reqwest::blocking::Client;
 use semver::Version;
 use std::{borrow::Cow, io::BufRead, path::Path};
 
@@ -14,21 +13,22 @@ pub fn generate_release_asset_url(version: &Version, asset_name: &str) -> String
 }
 
 /// Installs the default configuration file at `path`.
-pub fn install_config<P>(args: &InstallArgs, client: &Client, path: P) -> std::io::Result<()>
+pub fn install_config<P>(args: &InstallArgs, path: P) -> std::io::Result<()>
 where
     P: AsRef<Path>,
 {
     info!("installing config...");
+
     debug!("downloading config from GitHub...");
-    let bytes = client
-        .get(generate_release_asset_url(&args.version, CONFIG_NAME))
-        .send()
+    let mut response_body = ureq::get(generate_release_asset_url(&args.version, CONFIG_NAME))
+        .call()
         .map_err(std::io::Error::other)?
-        .bytes()
-        .map_err(std::io::Error::other)?;
+        .into_body();
     try_create_parent(&path)?;
-    std::fs::write(path, bytes)?;
+    let mut file = std::fs::File::create(path)?;
+    std::io::copy(&mut response_body.as_reader(), &mut file)?;
     debug!("config downloaded");
+
     info!("successfully installed config");
     Ok(())
 }

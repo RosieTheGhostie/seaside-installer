@@ -10,19 +10,16 @@ use crate::{
     },
     debug, info, warn,
 };
-use reqwest::blocking::Client;
 
 pub fn install(args: InstallArgs) -> std::io::Result<()> {
     info!("installing seaside...");
-
-    let client = Client::builder().build().map_err(std::io::Error::other)?;
 
     let binary_exists = std::fs::exists(BINARY_PATH)?;
     if !binary_exists || args.yes || {
         warn!("a seaside binary is already present");
         ask("would you like to replace the existing binary?")?
     } {
-        install_binary(&args, &client)?;
+        install_binary(&args)?;
     }
 
     let config_path = get_config_path()?;
@@ -31,7 +28,7 @@ pub fn install(args: InstallArgs) -> std::io::Result<()> {
         warn!("a seaside config file is already present");
         ask("would you like to replace the existing config?")?
     } {
-        install_config(&args, &client, &config_path)?;
+        install_config(&args, &config_path)?;
     } else if config_exists
         && (args.yes || ask("would you like to update the config version to match?")?)
     {
@@ -42,7 +39,7 @@ pub fn install(args: InstallArgs) -> std::io::Result<()> {
     Ok(())
 }
 
-fn install_binary(args: &InstallArgs, client: &Client) -> std::io::Result<()> {
+fn install_binary(args: &InstallArgs) -> std::io::Result<()> {
     info!("installing binary...");
 
     debug!("downloading binary from GitHub...");
@@ -50,17 +47,16 @@ fn install_binary(args: &InstallArgs, client: &Client) -> std::io::Result<()> {
         Toolchain::Msvc => BINARY_RELEASE_NAME_MSVC,
         Toolchain::Gnu => BINARY_RELEASE_NAME_GNU,
     };
-    let bytes = client
-        .get(generate_release_asset_url(
-            &args.version,
-            binary_release_name,
-        ))
-        .send()
-        .map_err(std::io::Error::other)?
-        .bytes()
-        .map_err(std::io::Error::other)?;
+    let mut response_body = ureq::get(generate_release_asset_url(
+        &args.version,
+        binary_release_name,
+    ))
+    .call()
+    .map_err(std::io::Error::other)?
+    .into_body();
     try_create_parent(BINARY_PATH)?;
-    std::fs::write(BINARY_PATH, bytes)?;
+    let mut file = std::fs::File::create(BINARY_PATH)?;
+    std::io::copy(&mut response_body.as_reader(), &mut file)?;
     debug!("binary downloaded");
 
     if !args.update {
