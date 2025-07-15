@@ -1,4 +1,4 @@
-use crate::{debug, info};
+use crate::debug;
 use windows_registry::Key;
 
 const ENVIRONMENT: &str = "Environment";
@@ -7,7 +7,7 @@ const DELIMITER: char = ';';
 
 /// Appends `path` to the user's `PATH` environment variable.
 pub fn add_to_path(path: &str) -> std::io::Result<()> {
-    info!("adding {path:?} to PATH...");
+    eprintln!("\x1b[38;5;248madding {path:?} to PATH...\x1b[0m");
 
     debug!("opening the environment registry key...");
     let key = open_user_environment_key()?;
@@ -18,7 +18,7 @@ pub fn add_to_path(path: &str) -> std::io::Result<()> {
         .rsplit(DELIMITER) // using `rsplit` because it'll likely be near the end
         .any(|p| p == path)
     {
-        info!("already in PATH. operation aborted");
+        eprintln!("\x1b[38;5;248malready in PATH. operation aborted\x1b[0m");
         return Ok(());
     } else {
         debug!("{path:?} not in PATH. adding...");
@@ -30,13 +30,13 @@ pub fn add_to_path(path: &str) -> std::io::Result<()> {
     path_var.push_str(path);
 
     write_to_path_variable(&key, path_var)?;
-    info!("successfully added {path:?} to PATH");
+    eprintln!("\x1b[38;5;248msuccessfully added {path:?} to PATH\x1b[0m");
     Ok(())
 }
 
 /// Removes all instances of `path` from the user's `PATH` environment variable.
 pub fn remove_from_path(path: &str) -> std::io::Result<()> {
-    info!("removing {path:?} from PATH...");
+    eprintln!("\x1b[38;5;248mremoving {path:?} from PATH...\x1b[0m");
 
     debug!("opening the environment registry key...");
     let key = open_user_environment_key()?;
@@ -53,14 +53,14 @@ pub fn remove_from_path(path: &str) -> std::io::Result<()> {
         needs_delimiter = true;
     }
     if path_var.len() == new_path_var.len() {
-        info!("already not in PATH. operation aborted");
+        eprintln!("\x1b[38;5;248malready not in PATH. operation aborted\x1b[0m");
         return Ok(());
     } else {
         debug!("found in PATH. removing...");
     }
 
     write_to_path_variable(&key, new_path_var)?;
-    info!("successfully removed {path:?} from PATH");
+    eprintln!("\x1b[38;5;248msuccessfully removed {path:?} from PATH\x1b[0m");
     Ok(())
 }
 

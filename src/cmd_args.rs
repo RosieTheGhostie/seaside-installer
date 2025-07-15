@@ -1,4 +1,3 @@
-use crate::logging::LogLevel;
 #[cfg(target_os = "windows")]
 use clap::ValueEnum;
 use clap::{Args, Parser, Subcommand};
@@ -10,10 +9,6 @@ use semver::Version;
 pub struct CmdArgs {
     #[command(subcommand)]
     pub command: Command,
-
-    /// Set the log level.
-    #[arg(long = "log", value_enum, default_value_t = LogLevel::Info)]
-    pub log_level: LogLevel,
 }
 
 #[derive(Clone, Debug, Subcommand)]

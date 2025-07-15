@@ -5,7 +5,7 @@ pub use install::*;
 pub use uninstall::*;
 
 use core::fmt::Display;
-use std::{io::Write, path::PathBuf};
+use std::io::Write;
 
 /// The name of seaside's configuration file.
 pub const CONFIG_NAME: &str = "Seaside.toml";
@@ -30,21 +30,5 @@ where
             "n" | "no" => return Ok(false),
             _ => eprintln!("invalid response. please try again"),
         }
-    }
-}
-
-/// Returns the path at which seaside's configuration file should reside.
-pub fn get_config_path() -> std::io::Result<PathBuf> {
-    get_config_dir().map(|directory| directory.join(CONFIG_NAME))
-}
-
-/// Returns the directory in which seaside's configuration file should reside.
-pub fn get_config_dir() -> std::io::Result<PathBuf> {
-    match directories::ProjectDirs::from("", "", "seaside") {
-        Some(project_directories) => Ok(project_directories.config_dir().to_path_buf()),
-        None => Err(std::io::Error::new(
-            std::io::ErrorKind::NotFound,
-            "couldn't find a home directory",
-        )),
     }
 }

@@ -1,27 +1,31 @@
-use super::BINARY_PATH;
-use crate::{
-    cmd_args::UninstallArgs,
-    common::{remove_dir_all, uninstall_config},
-    info,
-};
+use super::{BINARY_PATH, CONFIG_DIRECTORY};
+use crate::{cmd_args::UninstallArgs, common::uninstall_config};
 
 pub fn uninstall(args: UninstallArgs) -> std::io::Result<()> {
-    info!("uninstalling seaside...");
+    eprintln!("\x1b[38;5;248muninstalling seaside...\x1b[0m");
 
-    uninstall_binary(&args)?;
+    uninstall_binary()?;
     if !args.keep_config {
-        uninstall_config(&args)?;
+        uninstall_config(CONFIG_DIRECTORY)?;
     }
 
-    info!("uninstall complete! :3");
+    eprintln!("\x1b[38;5;248muninstall complete! :3\x1b[0m");
     Ok(())
 }
 
-fn uninstall_binary(_args: &UninstallArgs) -> std::io::Result<()> {
-    info!("uninstalling binary...");
+fn uninstall_binary() -> std::io::Result<()> {
+    eprintln!("\x1b[38;5;248muninstalling binary...\x1b[0m");
 
-    remove_dir_all!(BINARY_PATH, repr: "binary")?;
+    match std::fs::remove_file(BINARY_PATH) {
+        Ok(()) => {
+            eprintln!("\x1b[38;5;248msuccessfully removed binary\x1b[0m");
+        }
+        Err(err) if err.kind() == std::io::ErrorKind::NotFound => {
+            eprintln!("\x1b[38;5;248mbinary was not present\x1b[0m");
+        }
+        Err(err) => return Err(err),
+    }
 
-    info!("successfully uninstalled binary");
+    eprintln!("\x1b[38;5;248msuccessfully uninstalled binary\x1b[0m");
     Ok(())
 }

@@ -1,43 +1,41 @@
-use super::{BINARY_PATH, BINARY_RELEASE_NAME};
+use super::{BINARY_PATH, BINARY_RELEASE_NAME, CONFIG_PATH};
 use crate::{
     cmd_args::InstallArgs,
     common::{
-        ask, generate_release_asset_url, get_config_path, install_config, try_create_parent,
-        update_config_version,
+        ask, generate_release_asset_url, install_config, try_create_parent, update_config_version,
     },
-    debug, info, warn,
+    debug,
 };
 
 pub fn install(args: InstallArgs) -> std::io::Result<()> {
-    info!("installing seaside...");
+    eprintln!("\x1b[38;5;248minstalling seaside...\x1b[0m");
 
     let binary_exists = std::fs::exists(BINARY_PATH)?;
     if !binary_exists || args.yes || {
-        warn!("a seaside binary is already present");
+        eprintln!("\x1b[33m[WARNING] a seaside binary is already present\x1b[0m");
         ask("would you like to replace the existing binary?")?
     } {
         install_binary(&args)?;
     }
 
-    let config_path = get_config_path()?;
-    let config_exists = std::fs::exists(&config_path)?;
+    let config_exists = std::fs::exists(CONFIG_PATH)?;
     if !config_exists || args.yes || {
-        warn!("a seaside config file is already present");
+        eprintln!("\x1b[33m[WARNING] a seaside config file is already present\x1b[0m");
         ask("would you like to replace the existing config?")?
     } {
-        install_config(&args, &config_path)?;
+        install_config(&args, CONFIG_PATH)?;
     } else if config_exists
         && (args.yes || ask("would you like to update the config version to match?")?)
     {
-        update_config_version(&config_path, &args.version)?;
+        update_config_version(CONFIG_PATH, &args.version)?;
     }
 
-    info!("install complete! :3");
+    eprintln!("\x1b[38;5;248minstall complete! :3\x1b[0m");
     Ok(())
 }
 
 fn install_binary(args: &InstallArgs) -> std::io::Result<()> {
-    info!("installing binary...");
+    eprintln!("\x1b[38;5;248minstalling binary...\x1b[0m");
 
     debug!("downloading binary from GitHub...");
     let mut response_body = ureq::get(generate_release_asset_url(
@@ -52,6 +50,6 @@ fn install_binary(args: &InstallArgs) -> std::io::Result<()> {
     std::io::copy(&mut response_body.as_reader(), &mut file)?;
     debug!("binary downloaded");
 
-    info!("successfully installed binary");
+    eprintln!("\x1b[38;5;248msuccessfully installed binary\x1b[0m");
     Ok(())
 }

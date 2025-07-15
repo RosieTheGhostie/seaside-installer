@@ -1,5 +1,5 @@
 use super::CONFIG_NAME;
-use crate::{cmd_args::InstallArgs, debug, info};
+use crate::{cmd_args::InstallArgs, debug};
 use regex::Regex;
 use semver::Version;
 use std::{borrow::Cow, io::BufRead, path::Path};
@@ -17,7 +17,7 @@ pub fn install_config<P>(args: &InstallArgs, path: P) -> std::io::Result<()>
 where
     P: AsRef<Path>,
 {
-    info!("installing config...");
+    eprintln!("\x1b[38;5;248minstalling config...\x1b[0m");
 
     debug!("downloading config from GitHub...");
     let mut response_body = ureq::get(generate_release_asset_url(&args.version, CONFIG_NAME))
@@ -29,7 +29,7 @@ where
     std::io::copy(&mut response_body.as_reader(), &mut file)?;
     debug!("config downloaded");
 
-    info!("successfully installed config");
+    eprintln!("\x1b[38;5;248msuccessfully installed config\x1b[0m");
     Ok(())
 }
 
@@ -71,7 +71,7 @@ where
     debug!("writing buffer back to file...");
     std::fs::write(path, buffer)?;
     debug!("buffer written to file");
-    info!("successfully updated config version");
+    eprintln!("\x1b[38;5;248msuccessfully updated config version\x1b[0m");
     Ok(())
 }
 
