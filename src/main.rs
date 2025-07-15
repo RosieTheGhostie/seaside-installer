@@ -1,17 +1,16 @@
 mod cmd_args;
-mod common;
-#[cfg(target_os = "linux")]
-mod linux;
+mod consts;
+mod get_config;
+mod install;
+mod uninstall;
 #[cfg(target_os = "windows")]
-mod windows;
+mod windows_path;
 
 use clap::Parser;
 use cmd_args::{CmdArgs, Command};
-#[cfg(target_os = "linux")]
-use linux::{install, uninstall};
+use install::install;
 use std::process::ExitCode;
-#[cfg(target_os = "windows")]
-use windows::{install, uninstall};
+use uninstall::uninstall;
 
 fn main() -> ExitCode {
     let cmd_args = CmdArgs::parse();
@@ -27,6 +26,32 @@ fn main() -> ExitCode {
                 eprintln!("you may need to run this as root/admin");
             }
             ExitCode::FAILURE
+        }
+    }
+}
+
+/// Asks a yes/no question to the user and returns their answer.
+pub fn ask<S>(message: S) -> std::io::Result<bool>
+where
+    S: core::fmt::Display,
+{
+    use std::io::Write;
+
+    #[cfg(not(target_os = "windows"))]
+    const NEWLINE: &str = "\n";
+    #[cfg(target_os = "windows")]
+    const NEWLINE: &str = "\r\n";
+
+    loop {
+        print!("{message} (y/n) > ");
+        std::io::stdout().flush()?;
+        let mut temp = String::new();
+        std::io::stdin().read_line(&mut temp)?;
+        temp.make_ascii_lowercase();
+        match temp.strip_suffix(NEWLINE).unwrap_or(&temp) {
+            "y" | "yes" => return Ok(true),
+            "n" | "no" => return Ok(false),
+            _ => eprintln!("invalid response. please try again"),
         }
     }
 }

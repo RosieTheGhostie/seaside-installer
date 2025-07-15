@@ -1,5 +1,3 @@
-#[cfg(target_os = "windows")]
-use clap::ValueEnum;
 use clap::{Args, Parser, Subcommand};
 use semver::Version;
 
@@ -49,7 +47,7 @@ pub struct UninstallArgs {
 }
 
 #[cfg(target_os = "windows")]
-#[derive(Clone, Copy, Debug, Eq, PartialEq, ValueEnum)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, clap::ValueEnum)]
 pub enum Toolchain {
     Msvc,
     Gnu,
