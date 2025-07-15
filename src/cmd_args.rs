@@ -1,5 +1,7 @@
 use crate::logging::LogLevel;
-use clap::{Args, Parser, Subcommand, ValueEnum};
+#[cfg(target_os = "windows")]
+use clap::ValueEnum;
+use clap::{Args, Parser, Subcommand};
 use semver::Version;
 
 /// A simple installer, updater, and uninstaller for seaside.
@@ -31,15 +33,16 @@ pub struct InstallArgs {
     #[arg(short, long)]
     pub yes: bool,
 
-    #[cfg_attr(target_os = "windows", doc = "The toolchain to use.")]
-    #[cfg_attr(target_os = "windows", arg(long, value_enum, default_value_t = Toolchain::Msvc))]
+    #[cfg(target_os = "windows")]
+    /// The toolchain to use.
+    #[arg(long, value_enum, default_value_t = Toolchain::Msvc)]
     pub toolchain: Toolchain,
 
-    #[cfg_attr(
-        target_os = "windows",
-        doc = "Treat this installation as an update.\n\nThis skips steps that are only useful on a fresh install."
-    )]
-    #[cfg_attr(target_os = "windows", arg(short, long))]
+    #[cfg(target_os = "windows")]
+    /// Treat this installation as an update.
+    ///
+    /// This skips the steps that are only useful on a fresh install.
+    #[arg(short, long)]
     pub update: bool,
 }
 
