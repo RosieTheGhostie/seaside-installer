@@ -1,7 +1,6 @@
 [package]
 name = "seaside-installer"
-version = "0.1.0"
-authors = ["RosieTheGhostie <rosetheghost.dev@gmail.com>"]
+version = "0.1.1"
 edition = "2024"
 readme = "README.md"
 repository = "https://github.com/RosieTheGhostie/seaside-installer"
@@ -23,7 +22,3 @@ ureq = "3.0.12"
 
 [target.'cfg(windows)'.dependencies]
 windows-registry = "0.5.3"
-
-# [dependencies.minimal-logging]
-# version = "0.5.0"
-# git = "https://github.com/RosieTheGhostie/minimal-logging.git"
