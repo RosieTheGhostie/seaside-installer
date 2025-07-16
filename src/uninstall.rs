@@ -1,4 +1,4 @@
-use crate::{cmd_args::UninstallArgs, consts::BINARY_DIRECTORY, get_config};
+use crate::{cmd_args::UninstallArgs, get_config};
 use std::path::Path;
 
 pub fn uninstall(args: UninstallArgs) -> std::io::Result<()> {
@@ -16,9 +16,21 @@ pub fn uninstall(args: UninstallArgs) -> std::io::Result<()> {
 fn uninstall_binary() -> std::io::Result<()> {
     eprintln!("\x1b[38;5;248muninstalling binary...\x1b[0m");
 
-    remove_dir_all(BINARY_DIRECTORY, "binary")?;
+    #[cfg(target_os = "linux")]
+    match std::fs::remove_file(crate::consts::BINARY_PATH) {
+        Ok(()) => {
+            eprintln!("\x1b[38;5;248msuccessfully removed binary\x1b[0m");
+        }
+        Err(err) if err.kind() == std::io::ErrorKind::NotFound => {
+            eprintln!("\x1b[38;5;248mbinary was not present\x1b[0m");
+        }
+        Err(err) => return Err(err),
+    }
     #[cfg(target_os = "windows")]
-    crate::windows_path::remove_from_path(BINARY_DIRECTORY)?;
+    {
+        remove_dir_all(crate::consts::BINARY_DIRECTORY, "binary")?;
+        crate::windows_path::remove_from_path(crate::consts::BINARY_DIRECTORY)?;
+    }
 
     eprintln!("\x1b[38;5;248msuccessfully uninstalled binary\x1b[0m");
     Ok(())

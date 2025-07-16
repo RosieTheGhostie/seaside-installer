@@ -1,7 +1,7 @@
 use crate::{
     ask,
     cmd_args::InstallArgs,
-    consts::{BINARY_DIRECTORY, BINARY_PATH, CONFIG_NAME},
+    consts::{BINARY_PATH, CONFIG_NAME},
     debug, get_config,
 };
 use regex::Regex;
@@ -60,14 +60,15 @@ fn install_binary(args: &InstallArgs) -> std::io::Result<()> {
         .call()
         .map_err(std::io::Error::other)?
         .into_body();
-    try_create_dir(BINARY_DIRECTORY)?;
+    #[cfg(target_os = "windows")]
+    try_create_dir(crate::consts::BINARY_DIRECTORY)?;
     let mut file = std::fs::File::create(BINARY_PATH)?;
     std::io::copy(&mut response_body.as_reader(), &mut file)?;
     debug!("binary downloaded");
 
     #[cfg(target_os = "windows")]
     if !args.update {
-        crate::windows_path::add_to_path(BINARY_DIRECTORY)?;
+        crate::windows_path::add_to_path(crate::consts::BINARY_DIRECTORY)?;
     }
 
     eprintln!("\x1b[38;5;248msuccessfully installed binary\x1b[0m");
