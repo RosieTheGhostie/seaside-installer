@@ -84,10 +84,30 @@ fn install_config(args: &InstallArgs, path: &Path) -> std::io::Result<()> {
         .call()
         .map_err(std::io::Error::other)?
         .into_body();
-    try_create_dir(path.parent().unwrap())?;
+    let parent = path.parent().unwrap();
+    try_create_dir(parent)?;
     let mut file = std::fs::File::create(path)?;
     std::io::copy(&mut response_body.as_reader(), &mut file)?;
     debug!("config downloaded");
+
+    #[cfg(target_os = "linux")]
+    {
+        let user = crate::user::user();
+        debug!("transferring ownership of {parent:?} to {user}...");
+        let parent_as_str = parent.as_os_str().to_str().ok_or_else(|| {
+            std::io::Error::new(std::io::ErrorKind::InvalidInput, "path is not valid UTF-8")
+        })?;
+        let output = std::process::Command::new("/bin/chown")
+            .args(["-hR", user, parent_as_str])
+            .output()?;
+        if output.status.success() {
+            debug!("successfully transferred ownership to {user}");
+        } else {
+            return Err(std::io::Error::other(
+                "failed to transfer ownership of config directory",
+            ));
+        }
+    }
 
     eprintln!("\x1b[38;5;248msuccessfully installed config\x1b[0m");
     Ok(())
@@ -139,6 +159,7 @@ fn try_create_dir<P>(directory: P) -> std::io::Result<()>
 where
     P: AsRef<Path>,
 {
+    debug!("attempting to create {:?}", directory.as_ref());
     match std::fs::create_dir(directory) {
         Ok(()) => Ok(()),
         Err(err) if err.kind() == std::io::ErrorKind::AlreadyExists => Ok(()),

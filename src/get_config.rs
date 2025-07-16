@@ -1,5 +1,14 @@
 use std::path::PathBuf;
 
+#[cfg(target_os = "linux")]
+pub fn dir() -> std::io::Result<PathBuf> {
+    let mut path = PathBuf::from("/home");
+    path.push(crate::user::user());
+    path.push(".config/seaside");
+    Ok(path)
+}
+
+#[cfg(not(target_os = "linux"))]
 pub fn dir() -> std::io::Result<PathBuf> {
     let project_dirs = match directories::ProjectDirs::from("", "", "seaside") {
         Some(project_dirs) => project_dirs,

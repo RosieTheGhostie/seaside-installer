@@ -3,6 +3,8 @@ mod consts;
 mod get_config;
 mod install;
 mod uninstall;
+#[cfg(target_os = "linux")]
+mod user;
 #[cfg(target_os = "windows")]
 mod windows_path;
 
@@ -14,6 +16,14 @@ use uninstall::uninstall;
 
 fn main() -> ExitCode {
     let cmd_args = CmdArgs::parse();
+    #[cfg(target_os = "linux")]
+    if let Some(user) = user::get_sudo_user() {
+        // this is guaranteed to be the first and only time we set `USER`
+        let _ = user::USER.set(user);
+    } else {
+        eprintln!("\x1b[31m[ERROR] must run via sudo\x1b[0m");
+        return ExitCode::FAILURE;
+    }
     let result = match cmd_args.command {
         Command::Install(args) => install(args),
         Command::Uninstall(args) => uninstall(args),
@@ -22,9 +32,6 @@ fn main() -> ExitCode {
         Ok(()) => ExitCode::SUCCESS,
         Err(err) => {
             eprintln!("\x1b[31m[ERROR] {err}\x1b[0m");
-            if err.kind() == std::io::ErrorKind::PermissionDenied {
-                eprintln!("you may need to run this as root/admin");
-            }
             ExitCode::FAILURE
         }
     }
