@@ -66,6 +66,12 @@ fn install_binary(args: &InstallArgs) -> std::io::Result<()> {
     std::io::copy(&mut response_body.as_reader(), &mut file)?;
     debug!("binary downloaded");
 
+    #[cfg(target_os = "linux")]
+    {
+        crate::user::transfer_ownership_to_user(BINARY_PATH, false)?;
+        crate::user::make_executable(BINARY_PATH)?;
+    }
+
     #[cfg(target_os = "windows")]
     if !args.update {
         crate::windows_path::add_to_path(crate::consts::BINARY_DIRECTORY)?;
@@ -91,23 +97,7 @@ fn install_config(args: &InstallArgs, path: &Path) -> std::io::Result<()> {
     debug!("config downloaded");
 
     #[cfg(target_os = "linux")]
-    {
-        let user = crate::user::user();
-        debug!("transferring ownership of {parent:?} to {user}...");
-        let parent_as_str = parent.as_os_str().to_str().ok_or_else(|| {
-            std::io::Error::new(std::io::ErrorKind::InvalidInput, "path is not valid UTF-8")
-        })?;
-        let output = std::process::Command::new("/bin/chown")
-            .args(["-hR", user, parent_as_str])
-            .output()?;
-        if output.status.success() {
-            debug!("successfully transferred ownership to {user}");
-        } else {
-            return Err(std::io::Error::other(
-                "failed to transfer ownership of config directory",
-            ));
-        }
-    }
+    crate::user::transfer_ownership_to_user(parent, true)?;
 
     eprintln!("\x1b[38;5;248msuccessfully installed config\x1b[0m");
     Ok(())
